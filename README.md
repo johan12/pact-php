@@ -70,7 +70,7 @@ All of the following code will be used exclusively for the Consumer.
 
 This library contains a wrapper for the [Ruby Standalone Mock Service](https://github.com/pact-foundation/pact-mock_service).
 
-The easiest way to configure this is to use a [PHPUnit Listener](https://phpunit.de/manual/current/en/appendixes.configuration.html#appendixes.configuration.test-listeners). A default listener is included in this project, see [PactTestListener.php](/src/PhpPact/Consumer/Listener/PactTestListener.php). This utilizes environmental variables for configurations. These env variables can either be added to the system or to the phpunit.xml configuration file. Here is an example [phpunit.xml](/example/phpunit.consumer.xml) file configured to use the default. Keep in mind that both the test suite and the arguments array must be the same value.
+The easiest way to configure this is to use a [PHPUnit Extension](https://phpunit.readthedocs.io/en/7.1/configuration.html#registering-testrunner-extensionsl). A default extension is included in this project, see [PactExtension.php](src/PhpPact/Consumer/Hook/PactExtension.php). This utilizes environmental variables for configurations. These env variables can either be added to the system or to the phpunit.xml configuration file. Here is an example [phpunit.xml](example/phpunit.consumer.xml) file configured to use the default. Keep in mind that both the test suite and the arguments array must be the same value.
 
 Alternatively, you can start and stop as in whatever means you would like by following this example:
 
@@ -103,7 +103,7 @@ Alternatively, you can start and stop as in whatever means you would like by fol
 
 Create a standard PHPUnit test case class and function.
 
-[Click here](/example/tests/Consumer/Service/ConsumerServiceHelloTest.php) to see the full sample file.
+[Click here](example/tests/Consumer/Service/ConsumerServiceHelloTest.php) to see the full sample file.
 
 ### Create Mock Request
 
@@ -124,28 +124,24 @@ You can also create a body just like you will see in the provider example.
 This will define what the response from the provider should look like.
 
 ```php
-$matcher = new Matcher();
-
 $response = new ProviderResponse();
 $response
     ->setStatus(200)
     ->addHeader('Content-Type', 'application/json')
     ->setBody([
-        'message' => $matcher->regex('Hello, Bob', '(Hello, )[A-Za-z]')
+        'message' => Match::regex('Hello, Bob', '(Hello, )[A-Za-z]')
     ]);
 ```
 
 In this example, we are using matchers. This allows us to add flexible rules when matching the expectation with the actual value. In the example, you will see regex is used to validate that the response is valid.
 
 ```php
-$matcher = new Matcher();
-
 $response = new ProviderResponse();
 $response
     ->setStatus(200)
     ->addHeader('Content-Type', 'application/json')
     ->setBody([
-        'list' => $matcher->eachLike([
+        'list' => Match::eachLike([
             'firstName' => 'Bob',
             'age' => 22
         ])
@@ -154,23 +150,23 @@ $response
 
 Matcher | Explanation | Parameters | Example
 ---|---|---|---
-term | Match a value against a regex pattern. | Value, Regex Pattern | $matcher->term('Hello, Bob', '(Hello, )[A-Za-z]')
-regex | Alias to term matcher. | Value, Regex Pattern | $matcher->regex('Hello, Bob', '(Hello, )[A-Za-z]')
-dateISO8601 | Regex match a date using the ISO8601 format. | Value (Defaults to 2010-01-01) | $matcher->dateISO8601('2010-01-01')
-timeISO8601 | Regex match a time using the ISO8601 format. | Value (Defaults to T22:44:30.652Z) | $matcher->timeISO8601('T22:44:30.652Z')
-dateTimeISO8601 | Regex match a datetime using the ISO8601 format. | Value (Defaults to 2015-08-06T16:53:10+01:00) | $matcher->dateTimeISO8601('2015-08-06T16:53:10+01:00')
-dateTimeWithMillisISO8601 | Regex match a datetime with millis using the ISO8601 format. | Value (Defaults to 2015-08-06T16:53:10.123+01:00) | $matcher->dateTimeWithMillisISO8601('2015-08-06T16:53:10.123+01:00')
-timestampRFC3339 | Regex match a timestamp using the RFC3339 format. | Value (Defaults to Mon, 31 Oct 2016 15:21:41 -0400) | $matcher->timestampRFC3339('Mon, 31 Oct 2016 15:21:41 -0400')
-like | Match a value against its data type. | Value | $matcher->like(12)
-somethingLike | Alias to like matcher. | Value | $matcher->somethingLike(12)
-eachLike | Match on an object like the example. | Value, Min (Defaults to 1) | $matcher->eachLike(12)
-boolean | Match against boolean true. | none | $matcher->boolean()
-integer | Match a value against integer. | Value (Defaults to 13) | $matcher->integer()
-decimal | Match a value against float. | Value (Defaults to 13.01) | $matcher->decimal()
-hexadecimal | Regex to match a hexadecimal number. Example: 3F | Value (Defaults to 3F) | $matcher->hexadecimal('FF')
-uuid | Regex to match a uuid. | Value (Defaults to ce118b6e-d8e1-11e7-9296-cec278b6b50a) | $matcher->uuid('ce118b6e-d8e1-11e7-9296-cec278b6b50a')
-ipv4Address | Regex to match a ipv4 address. | Value (Defaults to 127.0.0.13) | $matcher->ipv4Address('127.0.0.1')
-ipv6Address | Regex to match a ipv6 address. | Value (Defaults to ::ffff:192.0.2.128) | $matcher->ipv6Address('::ffff:192.0.2.1')
+term | Match a value against a regex pattern. | Value, Regex Pattern | Match::term('Hello, Bob', '(Hello, )[A-Za-z]')
+regex | Alias to term matcher. | Value, Regex Pattern | Match::regex('Hello, Bob', '(Hello, )[A-Za-z]')
+dateISO8601 | Regex match a date using the ISO8601 format. | Value (Defaults to 2010-01-01) | Match::dateISO8601('2010-01-01')
+timeISO8601 | Regex match a time using the ISO8601 format. | Value (Defaults to T22:44:30.652Z) | Match::timeISO8601('T22:44:30.652Z')
+dateTimeISO8601 | Regex match a datetime using the ISO8601 format. | Value (Defaults to 2015-08-06T16:53:10+01:00) | Match::dateTimeISO8601('2015-08-06T16:53:10+01:00')
+dateTimeWithMillisISO8601 | Regex match a datetime with millis using the ISO8601 format. | Value (Defaults to 2015-08-06T16:53:10.123+01:00) | Match::dateTimeWithMillisISO8601('2015-08-06T16:53:10.123+01:00')
+timestampRFC3339 | Regex match a timestamp using the RFC3339 format. | Value (Defaults to Mon, 31 Oct 2016 15:21:41 -0400) | Match::timestampRFC3339('Mon, 31 Oct 2016 15:21:41 -0400')
+like | Match a value against its data type. | Value | Match::like(12)
+somethingLike | Alias to like matcher. | Value | Match::somethingLike(12)
+eachLike | Match on an object like the example. | Value, Min (Defaults to 1) | Match::eachLike(12)
+boolean | Match against boolean true. | none | Match::boolean()
+integer | Match a value against integer. | Value (Defaults to 13) | Match::integer()
+decimal | Match a value against float. | Value (Defaults to 13.01) | Match::decimal()
+hexadecimal | Regex to match a hexadecimal number. Example: 3F | Value (Defaults to 3F) | Match::hexadecimal('FF')
+uuid | Regex to match a uuid. | Value (Defaults to ce118b6e-d8e1-11e7-9296-cec278b6b50a) | Match::uuid('ce118b6e-d8e1-11e7-9296-cec278b6b50a')
+ipv4Address | Regex to match a ipv4 address. | Value (Defaults to 127.0.0.13) | Match::ipv4Address('127.0.0.1')
+ipv6Address | Regex to match a ipv6 address. | Value (Defaults to ::ffff:192.0.2.128) | Match::ipv6Address('::ffff:192.0.2.1')
 
 ### Build the Interaction
 
