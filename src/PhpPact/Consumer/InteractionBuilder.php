@@ -36,6 +36,7 @@ class InteractionBuilder implements BuilderInterface
     }
 
     /**
+     * @deprecated use register instead
      * @param string $providerState what is given to the request
      *
      * @return InteractionBuilder
@@ -48,6 +49,7 @@ class InteractionBuilder implements BuilderInterface
     }
 
     /**
+     * @deprecated use register instead
      * @param string $description what is received when the request is made
      *
      * @return InteractionBuilder
@@ -60,6 +62,7 @@ class InteractionBuilder implements BuilderInterface
     }
 
     /**
+     * @deprecated use register instead
      * @param ConsumerRequest $request mock of request sent
      *
      * @return InteractionBuilder
@@ -72,6 +75,7 @@ class InteractionBuilder implements BuilderInterface
     }
 
     /**
+     * @deprecated use register instead
      * Make the http request to the Mock Service to register the interaction.
      *
      * @param ProviderResponse $response mock of response received
@@ -83,6 +87,15 @@ class InteractionBuilder implements BuilderInterface
         $this->interaction->setResponse($response);
 
         return $this->mockServerHttpService->registerInteraction($this->interaction);
+    }
+
+    /**
+     * Make the http request to the Mock Service to register the interaction.
+     * @return bool returns true on success
+     */
+    public function register(Interaction $interaction): bool
+    {
+        return $this->mockServerHttpService->registerInteraction($interaction);
     }
 
     /**

@@ -34,6 +34,16 @@ class ConsumerRequest implements \JsonSerializable
     private $query;
 
     /**
+     * @param string|null $method should not be nullable
+     * @param string|null $path
+     */
+    public function __construct(string $method = null, string $path = null)
+    {
+        $this->method = $method;
+        $this->path = $path;
+    }
+
+    /**
      * @return string
      */
     public function getMethod(): string

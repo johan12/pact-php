@@ -24,6 +24,14 @@ class ProviderResponse implements \JsonSerializable
     private $body;
 
     /**
+     * @param int|null $status should not be nullable
+     */
+    public function __construct(int $status = null)
+    {
+        $this->status = $status;
+    }
+
+    /**
      * @return int
      */
     public function getStatus(): int
