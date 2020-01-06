@@ -29,6 +29,24 @@ class Interaction implements \JsonSerializable
     private $response;
 
     /**
+     * @param string|null $description should not be nullable
+     * @param ConsumerRequest|null $request should not be nullable
+     * @param ProviderResponse|null $response should not be nullable
+     * @param string|null $providerState
+     */
+    public function __construct(
+        string $description = null,
+        ConsumerRequest $request = null,
+        ProviderResponse $response = null,
+        string $providerState = null
+    ) {
+        $this->description = $description;
+        $this->request = $request;
+        $this->response = $response;
+        $this->providerState = $providerState;
+    }
+
+    /**
      * @return string
      */
     public function getDescription(): string

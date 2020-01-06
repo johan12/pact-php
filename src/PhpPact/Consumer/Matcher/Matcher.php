@@ -3,21 +3,10 @@
 namespace PhpPact\Consumer\Matcher;
 
 /**
- * Matcher implementation. Builds the Ruby Mock Server specification json for interaction publishing.
- * Class Matcher.
+ * @deprecated use Match instead
  */
 class Matcher
 {
-    const ISO8601_DATE_FORMAT                 = '^([\\+-]?\\d{4}(?!\\d{2}\\b))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))?)$';
-    const ISO8601_DATETIME_FORMAT             = '^\\d{4}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d([+-][0-2]\\d:[0-5]\\d|Z)$';
-    const ISO8601_DATETIME_WITH_MILLIS_FORMAT = '^\\d{4}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d\\.\\d{3}([+-][0-2]\\d:[0-5]\\d|Z)$';
-    const ISO8601_TIME_FORMAT                 = '^(T\\d\\d:\\d\\d(:\\d\\d)?(\\.\\d+)?(([+-]\\d\\d:\\d\\d)|Z)?)?$';
-    const RFC3339_TIMESTAMP_FORMAT            = '^(Mon|Tue|Wed|Thu|Fri|Sat|Sun),\\s\\d{2}\\s(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s\\d{4}\\s\\d{2}:\\d{2}:\\d{2}\\s(\\+|-)\\d{4}$';
-    const UUID_V4_FORMAT                      = '^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$';
-    const IPV4_FORMAT                         = '^(\\d{1,3}\\.)+\\d{1,3}$';
-    const IPV6_FORMAT                         = '^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$';
-    const HEX_FORMAT                          = '^[0-9a-fA-F]+$';
-
     /**
      * Alias for the `like()` function.
      *
@@ -29,7 +18,7 @@ class Matcher
      */
     public function somethingLike($value): array
     {
-        return $this->like($value);
+        return Match::like($value);
     }
 
     /**
@@ -41,14 +30,7 @@ class Matcher
      */
     public function like($value): array
     {
-        if ($value === null) {
-            throw new \Exception('Value must not be null.');
-        }
-
-        return [
-            'contents'   => $value,
-            'json_class' => 'Pact::SomethingLike',
-        ];
+        return Match::like($value);
     }
 
     /**
@@ -61,14 +43,7 @@ class Matcher
      */
     public function eachLike($value, int $min = 1): array
     {
-        $result = [
-            'contents'   => $value,
-            'json_class' => 'Pact::ArrayLike',
-        ];
-
-        $result['min'] = $min;
-
-        return $result;
+        return Match::eachLike($value, $min);
     }
 
     /**
@@ -83,25 +58,7 @@ class Matcher
      */
     public function term($value, string $pattern): array
     {
-        $result = \preg_match("/$pattern/", $value);
-
-        if ($result === false || $result === 0) {
-            $errorCode = \preg_last_error();
-
-            throw new \Exception("The pattern {$pattern} is not valid for value {$value}. Failed with error code {$errorCode}.");
-        }
-
-        return [
-            'data' => [
-                'generate' => $value,
-                'matcher'  => [
-                    'json_class' => 'Regexp',
-                    'o'          => 0,
-                    's'          => $pattern,
-                ],
-            ],
-            'json_class' => 'Pact::Term',
-        ];
+        return Match::term($value, $pattern);
     }
 
     /**
@@ -116,7 +73,7 @@ class Matcher
      */
     public function regex($value, string $pattern)
     {
-        return $this->term($value, $pattern);
+        return Match::term($value, $pattern);
     }
 
     /**
@@ -130,7 +87,7 @@ class Matcher
      */
     public function dateISO8601(string $value = '2013-02-01'): array
     {
-        return $this->term($value, self::ISO8601_DATE_FORMAT);
+        return Match::term($value, Match::ISO8601_DATE_FORMAT);
     }
 
     /**
@@ -144,7 +101,7 @@ class Matcher
      */
     public function timeISO8601(string $value = 'T22:44:30.652Z'): array
     {
-        return $this->term($value, self::ISO8601_TIME_FORMAT);
+        return Match::term($value, Match::ISO8601_TIME_FORMAT);
     }
 
     /**
@@ -158,7 +115,7 @@ class Matcher
      */
     public function dateTimeISO8601(string $value = '2015-08-06T16:53:10+01:00'): array
     {
-        return $this->term($value, self::ISO8601_DATETIME_FORMAT);
+        return Match::term($value, Match::ISO8601_DATETIME_FORMAT);
     }
 
     /**
@@ -172,7 +129,7 @@ class Matcher
      */
     public function dateTimeWithMillisISO8601(string $value = '2015-08-06T16:53:10.123+01:00'): array
     {
-        return $this->term($value, self::ISO8601_DATETIME_WITH_MILLIS_FORMAT);
+        return Match::term($value, Match::ISO8601_DATETIME_WITH_MILLIS_FORMAT);
     }
 
     /**
@@ -186,7 +143,7 @@ class Matcher
      */
     public function timestampRFC3339(string $value = 'Mon, 31 Oct 2016 15:21:41 -0400'): array
     {
-        return $this->term($value, self::RFC3339_TIMESTAMP_FORMAT);
+        return Match::term($value, Match::RFC3339_TIMESTAMP_FORMAT);
     }
 
     /**
@@ -196,7 +153,7 @@ class Matcher
      */
     public function boolean(): array
     {
-        return $this->like(true);
+        return Match::like(true);
     }
 
     /**
@@ -208,7 +165,7 @@ class Matcher
      */
     public function integer(int $int = 13): array
     {
-        return $this->like($int);
+        return Match::like($int);
     }
 
     /**
@@ -220,7 +177,7 @@ class Matcher
      */
     public function decimal(float $float = 13.01): array
     {
-        return $this->like($float);
+        return Match::like($float);
     }
 
     /**
@@ -232,7 +189,7 @@ class Matcher
      */
     public function hexadecimal(string $hex = '3F'): array
     {
-        return $this->term($hex, self::HEX_FORMAT);
+        return Match::term($hex, Match::HEX_FORMAT);
     }
 
     /**
@@ -244,7 +201,7 @@ class Matcher
      */
     public function uuid(string $uuid = 'ce118b6e-d8e1-11e7-9296-cec278b6b50a'): array
     {
-        return $this->term($uuid, self::UUID_V4_FORMAT);
+        return Match::term($uuid, Match::UUID_V4_FORMAT);
     }
 
     /**
@@ -256,7 +213,7 @@ class Matcher
      */
     public function ipv4Address(string $ip = '127.0.0.13'): array
     {
-        return $this->term($ip, self::IPV4_FORMAT);
+        return Match::term($ip, Match::IPV4_FORMAT);
     }
 
     /**
@@ -268,6 +225,6 @@ class Matcher
      */
     public function ipv6Address(string $ip = '::ffff:192.0.2.128'): array
     {
-        return $this->term($ip, self::IPV6_FORMAT);
+        return Match::term($ip, Match::IPV6_FORMAT);
     }
 }

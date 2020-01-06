@@ -2,6 +2,7 @@
 
 namespace PhpPact\Consumer\Listener;
 
+use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Psr7\Uri;
 use PhpPact\Broker\Service\BrokerHttpClient;
 use PhpPact\Http\GuzzleClient;
@@ -15,8 +16,10 @@ use PHPUnit\Framework\Test;
 use PHPUnit\Framework\TestListener;
 use PHPUnit\Framework\TestListenerDefaultImplementation;
 use PHPUnit\Framework\TestSuite;
+use Throwable;
 
 /**
+ * @deprecated use PhpPact\Consumer\Hook\PactExtension instead, PHPunit deprecated the use of listeners
  * PACT listener that can be used with environment variables and easily attached to PHPUnit configuration.
  * Class PactTestListener
  */
@@ -89,6 +92,12 @@ class PactTestListener implements TestListener
                 $httpService->verifyInteractions();
 
                 $json = $httpService->getPactJson();
+            } catch (ServerException $exception) {
+                print $exception->getResponse()->getBody()->getContents();
+                exit(1);
+            } catch (Throwable $throwable) {
+                print $throwable->getMessage();
+                exit(1);
             } finally {
                 $this->server->stop();
             }
